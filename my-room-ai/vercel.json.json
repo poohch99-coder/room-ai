@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/decorate.js": {
+      "maxDuration": 60
+    }
+  }
+}

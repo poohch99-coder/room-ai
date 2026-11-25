@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 방 꾸미기 스튜디오 | 실용형 · 감성형</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .compare-container { position: relative; overflow: hidden; user-select: none; touch-action: none; }
+    .compare-overlay { position: absolute; inset: 0; overflow: hidden; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+
+  <!-- 헤더 -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-20">
+    <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-2 font-bold text-lg tracking-tight">
+        <span class="bg-slate-900 text-white text-xs px-2 py-1 rounded-md">AI</span>
+        <span>방 꾸미기 스튜디오</span>
+      </div>
+      <span class="text-xs text-slate-500">실용형 · 감성형 원클릭 인테리어</span>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-8">
+    <!-- 인트로 -->
+    <section class="text-center mb-8">
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mb-2">
+        원하는 스타일을 고르고 방 사진을 올려보세요
+      </h1>
+      <p class="text-slate-600 text-sm sm:text-base">
+        방 구조와 창문 위치는 유지하면서 선택한 콘셉트에 맞게 가구와 분위기를 바꿔드립니다.
+      </p>
+    </section>
+
+    <!-- STEP 1: 두 가지 선택지 -->
+    <section class="mb-6">
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+        STEP 1. 인테리어 스타일 선택 (2가지 중 택 1)
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- 실용형 카드 -->
+        <button id="btn-practical" type="button"
+          class="style-card text-left p-5 rounded-2xl border-2 border-blue-600 bg-blue-50/60 shadow-sm transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-lg font-bold text-slate-900">🗂️ 실용형</span>
+            <span class="badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-600 text-white">선택됨</span>
+          </div>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            수납장·벽 선반·수납형 침대를 추가하고 중앙 동선을 넓혀 공간 활용도를 극대화합니다.
+          </p>
+        </button>
+
+        <!-- 감성형 카드 -->
+        <button id="btn-emotional" type="button"
+          class="style-card text-left p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-400 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-lg font-bold text-slate-900">🕯️ 감성형</span>
+            <span class="badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500">선택하기</span>
+          </div>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            따뜻한 간접조명·우드 톤·패브릭·플랜테리어를 더해 아늑하고 무드 있는 방으로 바꿉니다.
+          </p>
+        </button>
+      </div>
+    </section>
+
+    <!-- STEP 2: 사진 업로드 -->
+    <section id="upload-section" class="mb-8">
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+        STEP 2. 방 사진 업로드
+      </div>
+      <label for="file-input"
+        class="flex flex-col items-center justify-center w-full h-52 border-2 border-dashed border-slate-300 rounded-2xl bg-white hover:bg-slate-50 hover:border-slate-400 cursor-pointer transition-all p-6 text-center">
+        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-2xl mb-3">📷</div>
+        <p class="font-semibold text-slate-800 mb-1">클릭하여 방 사진 선택 (또는 드래그 앤 드롭)</p>
+        <p class="text-xs text-slate-500">JPG, PNG, WEBP 지원 · 업로드 즉시 AI 변환이 시작됩니다</p>
+        <input id="file-input" type="file" accept="image/*" class="hidden" />
+      </label>
+    </section>
+
+    <!-- 로딩 상태 -->
+    <section id="loading-section" class="hidden bg-white rounded-2xl border border-slate-200 p-10 text-center mb-8 shadow-sm">
+      <div class="inline-block w-10 h-10 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin mb-4"></div>
+      <h2 id="loading-title" class="text-lg font-bold text-slate-900 mb-1">AI가 방을 새로 꾸미고 있습니다...</h2>
+      <p class="text-sm text-slate-500">방 구조를 분석해 가구와 조명을 배치하는 중입니다 (약 10~20초 소요)</p>
+    </section>
+
+    <!-- 에러 메시지 -->
+    <div id="error-box" class="hidden mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm"></div>
+
+    <!-- 결과 비교 섹션 -->
+    <section id="result-section" class="hidden bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div>
+          <span id="result-badge" class="inline-block text-xs font-bold px-2.5 py-1 rounded-md bg-blue-600 text-white mr-2">실용형 완료</span>
+          <span class="text-xs text-slate-500">가운데 선을 좌우로 움직여 비교해보세요</span>
+        </div>
+        <div class="flex gap-2">
+          <button id="btn-switch-style" type="button"
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition">
+            감성형으로도 꾸며보기
+          </button>
+          <a id="btn-download" download="ai-room-design.png"
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50 cursor-pointer transition">
+            이미지 저장
+          </a>
+        </div>
+      </div>
+
+      <!-- 비포 / 애프터 슬라이더 -->
+      <div id="compare-box" class="compare-container w-full aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200">
+        <!-- After (전체 배경) -->
+        <img id="img-after" src="" alt="AI 인테리어 결과" class="w-full h-full object-cover block" />
+        <!-- Before (클리핑 오버레이) -->
+        <div id="compare-overlay" class="compare-overlay" style="width: 50%;">
+          <img id="img-before" src="" alt="원본 방 사진" class="w-full h-full object-cover max-w-none" />
+        </div>
+        <!-- 라벨 -->
+        <span class="absolute top-3 left-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-md backdrop-blur-sm">원본 (Before)</span>
+        <span class="absolute top-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-md backdrop-blur-sm">AI 인테리어 (After)</span>
+        <!-- 핸들 -->
+        <div id="compare-handle" class="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_8px_rgba(0,0,0,0.5)] cursor-ew-resize" style="left: 50%;">
+          <div class="w-8 h-8 rounded-full bg-white text-slate-800 shadow-md flex items-center justify-center text-xs font-bold -translate-x-1/2 absolute top-1/2 -translate-y-1/2">
+            ↔
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-center">
+        <button id="btn-reset" type="button" class="text-xs text-slate-500 underline hover:text-slate-800">
+          다른 방 사진 올리기
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let selectedStyle = 'practical'; // 'practical' | 'emotional'
+    let originalBase64 = '';
+
+    const btnPractical = document.getElementById('btn-practical');
+    const btnEmotional = document.getElementById('btn-emotional');
+    const fileInput = document.getElementById('file-input');
+    const uploadSection = document.getElementById('upload-section');
+    const loadingSection = document.getElementById('loading-section');
+    const loadingTitle = document.getElementById('loading-title');
+    const resultSection = document.getElementById('result-section');
+    const errorBox = document.getElementById('error-box');
+
+    const imgBefore = document.getElementById('img-before');
+    const imgAfter = document.getElementById('img-after');
+    const resultBadge = document.getElementById('result-badge');
+    const btnSwitchStyle = document.getElementById('btn-switch-style');
+    const btnDownload = document.getElementById('btn-download');
+    const btnReset = document.getElementById('btn-reset');
+
+    function updateStyleUI() {
+      if (selectedStyle === 'practical') {
+        btnPractical.className = 'style-card text-left p-5 rounded-2xl border-2 border-blue-600 bg-blue-50/60 shadow-sm transition-all';
+        btnPractical.querySelector('.badge').className = 'badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-600 text-white';
+        btnPractical.querySelector('.badge').textContent = '선택됨';
+
+        btnEmotional.className = 'style-card text-left p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-400 transition-all';
+        btnEmotional.querySelector('.badge').className = 'badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500';
+        btnEmotional.querySelector('.badge').textContent = '선택하기';
+      } else {
+        btnEmotional.className = 'style-card text-left p-5 rounded-2xl border-2 border-amber-500 bg-amber-50/60 shadow-sm transition-all';
+        btnEmotional.querySelector('.badge').className = 'badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500 text-white';
+        btnEmotional.querySelector('.badge').textContent = '선택됨';
+
+        btnPractical.className = 'style-card text-left p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-blue-400 transition-all';
+        btnPractical.querySelector('.badge').className = 'badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500';
+        btnPractical.querySelector('.badge').textContent = '선택하기';
+      }
+    }
+
+    btnPractical.addEventListener('click', () => {
+      selectedStyle = 'practical';
+      updateStyleUI();
+      if (originalBase64) runDecorate();
+    });
+
+    btnEmotional.addEventListener('click', () => {
+      selectedStyle = 'emotional';
+      updateStyleUI();
+      if (originalBase64) runDecorate();
+    });
+
+    // 이미지 리사이즈 (Vercel 요청 용량 제한 방지 및 속도 최적화)
+    function resizeImage(file, maxWidth = 1024) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let { width, height } = img;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        originalBase64 = await resizeImage(file);
+        await runDecorate();
+      } catch {
+        showError('이미지를 읽는 중 오류가 발생했습니다.');
+      }
+    });
+
+    async function runDecorate() {
+      errorBox.classList.add('hidden');
+      uploadSection.classList.add('hidden');
+      resultSection.classList.add('hidden');
+      loadingSection.classList.remove('hidden');
+
+      loadingTitle.textContent =
+        selectedStyle === 'practical'
+          ? '🗂️ 수납공간과 동선을 최적화하는 중...'
+          : '🕯️ 따뜻한 조명과 감성 무드를 입히는 중...';
+
+      try {
+        const res = await fetch('/api/decorate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageBase64: originalBase64,
+            style: selectedStyle
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'AI 변환에 실패했습니다.');
+        }
+
+        imgBefore.src = originalBase64;
+        imgAfter.src = data.resultImage;
+        btnDownload.href = data.resultImage;
+
+        if (selectedStyle === 'practical') {
+          resultBadge.textContent = '🗂️ 실용형 인테리어 완료';
+          resultBadge.className = 'inline-block text-xs font-bold px-2.5 py-1 rounded-md bg-blue-600 text-white mr-2';
+          btnSwitchStyle.textContent = '🕯️ 감성형으로도 꾸며보기';
+        } else {
+          resultBadge.textContent = '🕯️ 감성형 인테리어 완료';
+          resultBadge.className = 'inline-block text-xs font-bold px-2.5 py-1 rounded-md bg-amber-500 text-white mr-2';
+          btnSwitchStyle.textContent = '🗂️ 실용형으로도 꾸며보기';
+        }
+
+        loadingSection.classList.add('hidden');
+        resultSection.classList.remove('hidden');
+        syncBeforeImageWidth();
+      } catch (err) {
+        loadingSection.classList.add('hidden');
+        uploadSection.classList.remove('hidden');
+        showError(err.message);
+      }
+    }
+
+    btnSwitchStyle.addEventListener('click', () => {
+      selectedStyle = selectedStyle === 'practical' ? 'emotional' : 'practical';
+      updateStyleUI();
+      runDecorate();
+    });
+
+    btnReset.addEventListener('click', () => {
+      originalBase64 = '';
+      fileInput.value = '';
+      resultSection.classList.add('hidden');
+      uploadSection.classList.remove('hidden');
+      errorBox.classList.add('hidden');
+    });
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.classList.remove('hidden');
+    }
+
+    // 슬라이더 드래그 제어
+    const compareBox = document.getElementById('compare-box');
+    const compareOverlay = document.getElementById('compare-overlay');
+    const compareHandle = document.getElementById('compare-handle');
+    let isDragging = false;
+
+    function syncBeforeImageWidth() {
+      imgBefore.style.width = `${compareBox.offsetWidth}px`;
+    }
+    window.addEventListener('resize', syncBeforeImageWidth);
+
+    function moveSlider(clientX) {
+      const rect = compareBox.getBoundingClientRect();
+      let percent = ((clientX - rect.left) / rect.width) * 100;
+      percent = Math.max(0, Math.min(100, percent));
+      compareOverlay.style.width = `${percent}%`;
+      compareHandle.style.left = `${percent}%`;
+    }
+
+    compareBox.addEventListener('mousedown', (e) => { isDragging = true; moveSlider(e.clientX); });
+    window.addEventListener('mousemove', (e) => { if (isDragging) moveSlider(e.clientX); });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    compareBox.addEventListener('touchstart', (e) => { isDragging = true; moveSlider(e.touches[0].clientX); });
+    window.addEventListener('touchmove', (e) => { if (isDragging) moveSlider(e.touches[0].clientX); });
+    window.addEventListener('touchend', () => { isDragging = false; });
+  </script>
+</body>
+</html>
