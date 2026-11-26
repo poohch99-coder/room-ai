@@ -219,6 +219,16 @@
     const ADMIN_PASS = "5757";
     const STORAGE_KEY = "room_mbti_analytics_v1";
 
+    // 방금 생성한 사진들의 실제 파일명 매핑 (웹 배포 시 같은 폴더에 해당 파일명으로 배치)
+    const IMG_2B = "./7932fa08.png";
+    const IMG_5A = "./3a0dc040.png";
+    const IMG_5B = "./2e6e31d4.png";
+    const IMG_6A = "./a05fb7b5.png";
+    const IMG_6B = "./watermarked_img_7309957240428241438.png";
+    const IMG_7A = "./watermarked_img_4487802771439874003.png";
+    const IMG_7B = "./watermarked_img_7657247050563778054.png";
+    const IMG_9B = "./watermarked_img_1796855143301380279.png";
+
     const ALL_MBTI = [
       "ISTJ", "ISFJ", "INFJ", "INTJ",
       "ISTP", "ISFP", "INFP", "INTP",
@@ -249,8 +259,8 @@
         },
         b: {
           type: "I",
-          label: "따뜻한 램프와 은은한 야간 조명이 살아있는 침실·스탠드 무드",
-          img: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80"
+          label: "따뜻한 램프와 은은한 야간 조명이 살아있는 침실·스탠드",
+          img: IMG_2B
         }
       },
       {
@@ -284,12 +294,12 @@
         a: {
           type: "T",
           label: "모니터와 데스크 장비가 자리 잡힌 깔끔한 작업 책상",
-          img: "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?auto=format&fit=crop&w=800&q=80"
+          img: IMG_5A
         },
         b: {
           type: "F",
           label: "따뜻한 조명 아래 노트와 아날로그 소품이 놓인 아늑한 창작 책상",
-          img: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80"
+          img: IMG_5B
         }
       },
       {
@@ -297,12 +307,12 @@
         a: {
           type: "T",
           label: "단정하고 깔끔한 호텔식 베딩 스타일링",
-          img: "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=800&q=80"
+          img: IMG_6A
         },
         b: {
           type: "F",
           label: "포근한 쿠션·담요 스타일링이 어우러진 아늑한 침구",
-          img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80"
+          img: IMG_6B
         }
       },
       {
@@ -310,12 +320,12 @@
         a: {
           type: "J",
           label: "수납함과 칸막이로 각 맞춰 정돈된 시스템 수납",
-          img: "https://images.unsplash.com/photo-1558997519-83ea9252edf8?auto=format&fit=crop&w=800&q=80"
+          img: IMG_7A
         },
         b: {
           type: "P",
           label: "높이와 크기가 다양한 화분·식물들이 어우러진 플랜테리어",
-          img: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=800&q=80"
+          img: IMG_7B
         }
       },
       {
@@ -341,7 +351,7 @@
         b: {
           type: "INFP",
           label: "어두운 방에 빔프로젝터 스크린/영상이 투사되는 아늑한 라운지",
-          img: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80"
+          img: IMG_9B
         }
       }
     ];
@@ -352,56 +362,56 @@
         desc: "불필요한 장식보다 동선과 수납 효율이 완벽하게 맞아떨어질 때 가장 큰 편안함을 느끼는 타입입니다. 물건마다 제자리가 정해져 있어야 직성이 풀리며, 내구성과 실용성이 검증된 가구를 선호합니다.",
         keywords: "#칼각정리 #화이트우드 #수납천재 #실용주의",
         item: "모듈형 서랍장 · 라벨링 수납박스",
-        img: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=900&q=80"
+        img: IMG_7A
       },
       ISFJ: {
         title: "포근한 온기의 정돈된 홈카페 주인",
         desc: "단정하게 정돈된 공간 속에 따뜻한 패브릭과 은은한 조명을 더해 안정감을 만드는 타입입니다. 집은 바쁜 하루를 마치고 가장 안전하게 쉬어갈 수 있는 포근한 쉼터여야 합니다.",
         keywords: "#따뜻한미니멀 #포근한베딩 #안정감 #우드톤",
         item: "패브릭 단스탠드 · 극세사 블랭킷",
-        img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80"
+        img: IMG_6B
       },
       INFJ: {
         title: "고요한 영감이 흐르는 아지트 큐레이터",
         desc: "겉으로 드러나는 화려함보다 나만의 철학과 스토리가 담긴 조용한 공간을 추구합니다. 은은한 간접 조명과 의미 있는 오브제 하나가 방 전체의 분위기를 결정짓습니다.",
         keywords: "#감성아지트 #간접조명 #미니멀갤러리 #사색공간",
         item: "아크릴 무드등 · 아트 포스터 액자",
-        img: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=80"
+        img: IMG_2B
       },
       INTJ: {
         title: "완벽한 효율의 하이엔드 스마트 룸 설계자",
         desc: "가구 배치부터 조명, 데스크 셋업까지 모든 요소에 명확한 목적과 효율이 있어야 만족하는 타입입니다. 군더더기 없는 모던한 톤과 스마트 기기 연동을 선호합니다.",
         keywords: "#모던시크 #데스크테리어 #동선최적화 #무채색",
         item: "모니터 암 · 스마트 조명 허브",
-        img: "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?auto=format&fit=crop&w=900&q=80"
+        img: IMG_5A
       },
       ISTP: {
         title: "군더더기 없는 쿨톤 기능주의자",
         desc: "관리하기 번거로운 소품은 최소화하고, 꼭 필요한 핵심 가구만 툭 배치해 쿨하고 실용적인 공간을 만듭니다. 메탈, 블랙, 우드 소재가 어우러진 담백한 스타일이 잘 어울립니다.",
         keywords: "#쿨톤인테리어 #관리편의 #핵심가구 #심플라이프",
         item: "스틸 트롤리 · 1인 리클라이너 체어",
-        img: "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=900&q=80"
+        img: IMG_6A
       },
       ISFP: {
         title: "오감을 채우는 감성 무드 메이커",
         desc: "색감, 촉감, 향기처럼 디테일한 감각 요소에 탁월한 센스를 가진 타입입니다. 계획적으로 꾸미기보다 마음에 쏙 드는 소품을 하나씩 모아 나만의 예술적인 방을 완성합니다.",
         keywords: "#감각적색감 #오브제수집 #포근한무드 #취향존중",
         item: "아로마 디퓨저 · 빈티지 거울",
-        img: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=900&q=80"
+        img: IMG_5B
       },
       INFP: {
         title: "나만의 작은 우주, 몽상가 룸 아티스트",
         desc: "현실의 피로를 잊고 좋아하는 영화, 음악, 책에 푹 빠질 수 있는 아늑한 벙커형 공간을 사랑합니다. 밤이 되면 조명을 끄고 무드등과 빔프로젝터를 켜는 순간 가장 행복해집니다.",
         keywords: "#방구석영화관 #감성맥시멀 #무드등맛집 #나만의우주",
         item: "미니 빔프로젝터 · 코지 빈백 소파",
-        img: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80"
+        img: IMG_9B
       },
       INTP: {
         title: "몰입과 탐구를 위한 랩실 스타일러",
         desc: "남들의 시선보다 내가 작업하고 몰입하기 편한 구조가 최우선인 타입입니다. 책상 주변에 필요한 장비와 자료가 손 닿는 곳에 배치된 자유로운 연구실 같은 방을 선호합니다.",
         keywords: "#몰입환경 #자유배치 #테크데스크 #실속파",
         item: "와이드 데스크 · 멀티탭 정리함",
-        img: "https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?auto=format&fit=crop&w=900&q=80"
+        img: IMG_5A
       },
       ESTP: {
         title: "트렌디하고 에너제틱한 오픈 라운지",
@@ -422,7 +432,7 @@
         desc: "정형화된 인테리어 규칙을 깨고 식물, 패브릭, 독특한 소품을 자유롭게 믹스매치하는 타입입니다. 기분에 따라 가구 위치를 바꾸며 매번 새로운 에너지를 얻습니다.",
         keywords: "#플랜테리어 #믹스매치 #자유로운영혼 #창의적공간",
         item: "행잉 플랜트 · 패턴 패브릭 포스터",
-        img: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=900&q=80"
+        img: IMG_7B
       },
       ENTP: {
         title: "실험적이고 독창적인 콘셉트 스튜디오",
@@ -436,14 +446,14 @@
         desc: "깔끔하게 정돈된 대칭 구조와 명확한 공간 분리를 선호하는 실행력 만렙 타입입니다. 청소가 쉽고 수납 동선이 완벽하게 계산된 호텔 같은 쾌적한 방을 유지합니다.",
         keywords: "#호텔인테리어 #완벽대칭 #청소용이 #체계적수납",
         item: "시스템 옷장 · 매립형 수납 벤치",
-        img: "https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&w=900&q=80"
+        img: IMG_6A
       },
       ESFJ: {
         title: "누구나 반하는 따뜻한 환대의 거실",
         desc: "가족이나 친구가 놀러 왔을 때 편안하게 머물 수 있도록 세심하게 배려된 공간을 꾸밉니다. 화사한 우드 톤과 아기자기한 소품, 기분 좋은 향기가 조화를 이룹니다.",
         keywords: "#홈카페감성 #따뜻한환대 #화사한우드 #센스만점",
         item: "원목 다이닝 테이블 · 테이블 램프",
-        img: "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=80"
+        img: IMG_5B
       },
       ENFJ: {
         title: "조화롭고 세련된 라이프스타일 갤러리",
