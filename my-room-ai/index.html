@@ -3,326 +3,695 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 방 꾸미기 스튜디오 | 실용형 · 감성형</title>
+  <title>인테리어로 알아보는 내 방 MBTI</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
     body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
-    .compare-container { position: relative; overflow: hidden; user-select: none; touch-action: none; }
-    .compare-overlay { position: absolute; inset: 0; overflow: hidden; }
+    .photo-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .photo-card:hover { transform: translateY(-4px); }
+    .photo-card:active { transform: scale(0.98); }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+<body class="bg-stone-100 text-stone-900 min-h-screen flex flex-col">
 
   <!-- 헤더 -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-20">
-    <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-      <div class="flex items-center gap-2 font-bold text-lg tracking-tight">
-        <span class="bg-slate-900 text-white text-xs px-2 py-1 rounded-md">AI</span>
-        <span>방 꾸미기 스튜디오</span>
+  <header class="bg-white/90 backdrop-blur border-b border-stone-200 sticky top-0 z-20">
+    <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+      <button onclick="goHome()" class="flex items-center gap-2 font-bold text-base tracking-tight text-left">
+        <span class="bg-stone-900 text-white text-xs px-2 py-1 rounded-md">ROOM MBTI</span>
+        <span>인테리어로 알아보는 내 방 성격</span>
+      </button>
+      <div class="flex items-center gap-3">
+        <span id="step-badge" class="text-xs font-semibold text-stone-500 hidden">1 / 9</span>
+        <button onclick="openAdminModal()" class="text-xs font-semibold text-stone-500 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1.5 rounded-lg transition">
+          관리자
+        </button>
       </div>
-      <span class="text-xs text-slate-500">실용형 · 감성형 원클릭 인테리어</span>
     </div>
   </header>
 
-  <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-8">
-    <!-- 인트로 -->
-    <section class="text-center mb-8">
-      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mb-2">
-        원하는 스타일을 고르고 방 사진을 올려보세요
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-8 flex flex-col justify-center">
+
+    <!-- 1. 시작 화면 -->
+    <section id="intro-screen" class="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-stone-200 text-center">
+      <div class="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full mb-4">
+        사진 2장 중 끌리는 인테리어 고르기
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-stone-900 mb-3 leading-snug">
+        내 방 취향으로 알아보는<br/>인테리어 MBTI 테스트
       </h1>
-      <p class="text-slate-600 text-sm sm:text-base">
-        방 구조와 창문 위치는 유지하면서 선택한 콘셉트에 맞게 가구와 분위기를 바꿔드립니다.
+      <p class="text-stone-500 text-sm sm:text-base mb-8 max-w-md mx-auto">
+        9가지 공간·소품 사진 중 더 끌리는 쪽을 직감적으로 선택해 보세요.<br/>
+        당신의 공간 스타일과 딱 맞는 MBTI 유형을 분석해 드립니다.
       </p>
-    </section>
 
-    <!-- STEP 1: 두 가지 선택지 -->
-    <section class="mb-6">
-      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-        STEP 1. 인테리어 스타일 선택 (2가지 중 택 1)
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- 실용형 카드 -->
-        <button id="btn-practical" type="button"
-          class="style-card text-left p-5 rounded-2xl border-2 border-blue-600 bg-blue-50/60 shadow-sm transition-all">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-lg font-bold text-slate-900">🗂️ 실용형</span>
-            <span class="badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-600 text-white">선택됨</span>
-          </div>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            수납장·벽 선반·수납형 침대를 추가하고 중앙 동선을 넓혀 공간 활용도를 극대화합니다.
-          </p>
-        </button>
-
-        <!-- 감성형 카드 -->
-        <button id="btn-emotional" type="button"
-          class="style-card text-left p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-400 transition-all">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-lg font-bold text-slate-900">🕯️ 감성형</span>
-            <span class="badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500">선택하기</span>
-          </div>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            따뜻한 간접조명·우드 톤·패브릭·플랜테리어를 더해 아늑하고 무드 있는 방으로 바꿉니다.
-          </p>
-        </button>
-      </div>
-    </section>
-
-    <!-- STEP 2: 사진 업로드 -->
-    <section id="upload-section" class="mb-8">
-      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-        STEP 2. 방 사진 업로드
-      </div>
-      <label for="file-input"
-        class="flex flex-col items-center justify-center w-full h-52 border-2 border-dashed border-slate-300 rounded-2xl bg-white hover:bg-slate-50 hover:border-slate-400 cursor-pointer transition-all p-6 text-center">
-        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-2xl mb-3">📷</div>
-        <p class="font-semibold text-slate-800 mb-1">클릭하여 방 사진 선택 (또는 드래그 앤 드롭)</p>
-        <p class="text-xs text-slate-500">JPG, PNG, WEBP 지원 · 업로드 즉시 AI 변환이 시작됩니다</p>
-        <input id="file-input" type="file" accept="image/*" class="hidden" />
-      </label>
-    </section>
-
-    <!-- 로딩 상태 -->
-    <section id="loading-section" class="hidden bg-white rounded-2xl border border-slate-200 p-10 text-center mb-8 shadow-sm">
-      <div class="inline-block w-10 h-10 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin mb-4"></div>
-      <h2 id="loading-title" class="text-lg font-bold text-slate-900 mb-1">AI가 방을 새로 꾸미고 있습니다...</h2>
-      <p class="text-sm text-slate-500">방 구조를 분석해 가구와 조명을 배치하는 중입니다 (약 10~20초 소요)</p>
-    </section>
-
-    <!-- 에러 메시지 -->
-    <div id="error-box" class="hidden mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm"></div>
-
-    <!-- 결과 비교 섹션 -->
-    <section id="result-section" class="hidden bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-sm">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-        <div>
-          <span id="result-badge" class="inline-block text-xs font-bold px-2.5 py-1 rounded-md bg-blue-600 text-white mr-2">실용형 완료</span>
-          <span class="text-xs text-slate-500">가운데 선을 좌우로 움직여 비교해보세요</span>
+      <div class="grid grid-cols-2 gap-3 max-w-md mx-auto mb-8">
+        <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-stone-200">
+          <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&q=80" alt="모던 인테리어" class="w-full h-full object-cover" />
         </div>
-        <div class="flex gap-2">
-          <button id="btn-switch-style" type="button"
-            class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition">
-            감성형으로도 꾸며보기
+        <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-stone-200">
+          <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80" alt="감성 인테리어" class="w-full h-full object-cover" />
+        </div>
+      </div>
+
+      <button onclick="startTest()" class="w-full sm:w-auto px-10 py-4 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-2xl text-base transition shadow-md">
+        테스트 시작하기
+      </button>
+    </section>
+
+    <!-- 2. 질문 화면 -->
+    <section id="quiz-screen" class="hidden">
+      <div class="w-full bg-stone-200 h-2 rounded-full overflow-hidden mb-6">
+        <div id="progress-bar" class="bg-stone-900 h-full transition-all duration-300" style="width: 11%"></div>
+      </div>
+
+      <div class="text-center mb-6">
+        <span id="q-number" class="text-xs font-bold uppercase tracking-wider text-amber-700">QUESTION 01</span>
+        <h2 id="q-title" class="text-xl sm:text-2xl font-extrabold text-stone-900 mt-1">
+          질문 제목
+        </h2>
+        <p class="text-xs sm:text-sm text-stone-500 mt-1">더 머물고 싶거나 취향에 가까운 사진을 클릭하세요</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <button onclick="selectOption('A')" class="photo-card group bg-white rounded-3xl overflow-hidden border-2 border-transparent hover:border-stone-900 shadow-sm text-left focus:outline-none">
+          <div class="relative aspect-[4/3] w-full bg-stone-200 overflow-hidden">
+            <img id="img-a" src="" alt="선택지 A" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+            <span class="absolute top-3 left-3 bg-black/70 text-white text-xs font-bold px-3 py-1 rounded-full">A</span>
+          </div>
+          <div class="p-4">
+            <p id="label-a" class="font-bold text-stone-800 text-sm sm:text-base"></p>
+          </div>
+        </button>
+
+        <button onclick="selectOption('B')" class="photo-card group bg-white rounded-3xl overflow-hidden border-2 border-transparent hover:border-stone-900 shadow-sm text-left focus:outline-none">
+          <div class="relative aspect-[4/3] w-full bg-stone-200 overflow-hidden">
+            <img id="img-b" src="" alt="선택지 B" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+            <span class="absolute top-3 left-3 bg-black/70 text-white text-xs font-bold px-3 py-1 rounded-full">B</span>
+          </div>
+          <div class="p-4">
+            <p id="label-b" class="font-bold text-stone-800 text-sm sm:text-base"></p>
+          </div>
+        </button>
+      </div>
+
+      <div class="mt-6 text-center">
+        <button id="prev-btn" onclick="prevQuestion()" class="text-xs text-stone-400 hover:text-stone-700 underline hidden">
+          ← 이전 질문으로 돌아가기
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. 결과 화면 -->
+    <section id="result-screen" class="hidden bg-white rounded-3xl overflow-hidden shadow-sm border border-stone-200">
+      <div class="relative h-56 sm:h-64 w-full bg-stone-200">
+        <img id="result-img" src="" alt="추천 방 스타일" class="w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent flex flex-col justify-end p-6 sm:p-8 text-white">
+          <span class="text-xs font-bold tracking-widest uppercase text-amber-300 mb-1">YOUR ROOM MBTI</span>
+          <div class="flex items-baseline gap-3">
+            <h2 id="result-mbti" class="text-4xl sm:text-5xl font-black tracking-tight">ISTJ</h2>
+            <span id="result-title" class="text-lg sm:text-xl font-bold text-stone-100">유형 타이틀</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 sm:p-8 space-y-6">
+        <p id="result-desc" class="text-stone-700 text-sm sm:text-base leading-relaxed"></p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-stone-50 rounded-2xl p-4 border border-stone-200">
+            <h3 class="text-xs font-bold text-stone-400 uppercase mb-2">찰떡 인테리어 키워드</h3>
+            <p id="result-keywords" class="text-sm font-bold text-stone-800"></p>
+          </div>
+          <div class="bg-amber-50/70 rounded-2xl p-4 border border-amber-200/70">
+            <h3 class="text-xs font-bold text-amber-700 uppercase mb-2">추천 핵심 아이템</h3>
+            <p id="result-item" class="text-sm font-bold text-stone-800"></p>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+          <button onclick="copyResult()" class="flex-1 py-3.5 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-2xl text-sm transition">
+            결과 링크 복사해서 공유하기
           </button>
-          <a id="btn-download" download="ai-room-design.png"
-            class="px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50 cursor-pointer transition">
-            이미지 저장
-          </a>
+          <button onclick="restartTest()" class="sm:w-40 py-3.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-2xl text-sm transition">
+            다시 테스트하기
+          </button>
         </div>
-      </div>
-
-      <!-- 비포 / 애프터 슬라이더 -->
-      <div id="compare-box" class="compare-container w-full aspect-[4/3] rounded-xl bg-slate-100 border border-slate-200">
-        <!-- After (전체 배경) -->
-        <img id="img-after" src="" alt="AI 인테리어 결과" class="w-full h-full object-cover block" />
-        <!-- Before (클리핑 오버레이) -->
-        <div id="compare-overlay" class="compare-overlay" style="width: 50%;">
-          <img id="img-before" src="" alt="원본 방 사진" class="w-full h-full object-cover max-w-none" />
-        </div>
-        <!-- 라벨 -->
-        <span class="absolute top-3 left-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-md backdrop-blur-sm">원본 (Before)</span>
-        <span class="absolute top-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-md backdrop-blur-sm">AI 인테리어 (After)</span>
-        <!-- 핸들 -->
-        <div id="compare-handle" class="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_8px_rgba(0,0,0,0.5)] cursor-ew-resize" style="left: 50%;">
-          <div class="w-8 h-8 rounded-full bg-white text-slate-800 shadow-md flex items-center justify-center text-xs font-bold -translate-x-1/2 absolute top-1/2 -translate-y-1/2">
-            ↔
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-4 text-center">
-        <button id="btn-reset" type="button" class="text-xs text-slate-500 underline hover:text-slate-800">
-          다른 방 사진 올리기
-        </button>
       </div>
     </section>
+
+    <!-- 4. 관리자 전용 데이터 분석 화면 -->
+    <section id="admin-screen" class="hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200 space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-4">
+        <div>
+          <span class="text-xs font-bold text-amber-700 uppercase tracking-wider">ADMIN ANALYTICS</span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-stone-900">테스트 참여 및 결과 데이터 분석</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="resetStats()" class="text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 px-3 py-2 rounded-xl transition">
+            통계 초기화
+          </button>
+          <button onclick="goHome()" class="text-xs font-semibold text-stone-700 hover:bg-stone-200 bg-stone-100 px-3 py-2 rounded-xl transition">
+            테스트로 돌아가기
+          </button>
+        </div>
+      </div>
+
+      <!-- 핵심 지표 카드 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-stone-50 rounded-2xl p-4 border border-stone-200">
+          <p class="text-xs text-stone-500 font-medium">페이지 접속</p>
+          <p id="stat-visits" class="text-2xl font-black text-stone-900 mt-1">0</p>
+        </div>
+        <div class="bg-stone-50 rounded-2xl p-4 border border-stone-200">
+          <p class="text-xs text-stone-500 font-medium">테스트 시작</p>
+          <p id="stat-starts" class="text-2xl font-black text-stone-900 mt-1">0</p>
+        </div>
+        <div class="bg-stone-50 rounded-2xl p-4 border border-stone-200">
+          <p class="text-xs text-stone-500 font-medium">테스트 완료</p>
+          <p id="stat-completes" class="text-2xl font-black text-stone-900 mt-1">0</p>
+        </div>
+        <div class="bg-amber-50/70 rounded-2xl p-4 border border-amber-200/70">
+          <p class="text-xs text-amber-700 font-semibold">완료율</p>
+          <p id="stat-rate" class="text-2xl font-black text-amber-900 mt-1">0%</p>
+        </div>
+      </div>
+
+      <!-- 최다 유형 요약 -->
+      <div class="bg-stone-900 text-white rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <p class="text-xs text-stone-400">가장 많이 나온 방 MBTI</p>
+          <p id="stat-top-type" class="text-lg font-extrabold mt-0.5">아직 완료 데이터가 없습니다</p>
+        </div>
+        <span class="text-xs text-stone-400">최근 완료: <strong id="stat-last-time" class="text-stone-200">-</strong></span>
+      </div>
+
+      <!-- MBTI 16유형 분포 -->
+      <div>
+        <h3 class="text-sm font-bold text-stone-800 mb-3">MBTI 유형별 결과 분포</h3>
+        <div id="mbti-chart" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+      </div>
+    </section>
+
   </main>
 
+  <!-- 관리자 비밀번호 입력 모달 -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl border border-stone-200">
+      <h3 class="text-lg font-extrabold text-stone-900">관리자 인증</h3>
+      <p class="text-xs text-stone-500 mt-1 mb-4">데이터 분석 화면을 보려면 관리자 비밀번호를 입력하세요.</p>
+      <input id="admin-pw-input" type="password" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter') verifyAdmin()"
+        class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-stone-900 mb-2" />
+      <p id="admin-error" class="text-xs text-red-600 hidden mb-3">비밀번호가 올바르지 않습니다.</p>
+      <div class="flex gap-2 mt-2">
+        <button onclick="closeAdminModal()" class="flex-1 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-sm font-bold">
+          취소
+        </button>
+        <button onclick="verifyAdmin()" class="flex-1 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-sm font-bold">
+          확인
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    let selectedStyle = 'practical'; // 'practical' | 'emotional'
-    let originalBase64 = '';
+    // 원하는 관리자 비밀번호로 변경하세요
+    const ADMIN_PASS = "5577";
+    const STORAGE_KEY = "room_mbti_analytics_v1";
 
-    const btnPractical = document.getElementById('btn-practical');
-    const btnEmotional = document.getElementById('btn-emotional');
-    const fileInput = document.getElementById('file-input');
-    const uploadSection = document.getElementById('upload-section');
-    const loadingSection = document.getElementById('loading-section');
-    const loadingTitle = document.getElementById('loading-title');
-    const resultSection = document.getElementById('result-section');
-    const errorBox = document.getElementById('error-box');
+    const ALL_MBTI = [
+      "ISTJ", "ISFJ", "INFJ", "INTJ",
+      "ISTP", "ISFP", "INFP", "INTP",
+      "ESTP", "ESFP", "ENFP", "ENTP",
+      "ESTJ", "ESFJ", "ENFJ", "ENTJ"
+    ];
 
-    const imgBefore = document.getElementById('img-before');
-    const imgAfter = document.getElementById('img-after');
-    const resultBadge = document.getElementById('result-badge');
-    const btnSwitchStyle = document.getElementById('btn-switch-style');
-    const btnDownload = document.getElementById('btn-download');
-    const btnReset = document.getElementById('btn-reset');
+    const questions = [
+      {
+        title: "주말에 머물고 싶은 거실 분위기는?",
+        a: {
+          type: "E",
+          label: "친구들과 둘러앉기 좋은 넓고 탁 트인 오픈 거실",
+          img: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80"
+        },
+        b: {
+          type: "I",
+          label: "혼자만의 휴식에 집중할 수 있는 아늑한 프라이빗 공간",
+          img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80"
+        }
+      },
+      {
+        title: "퇴근 후 방에 들어왔을 때 켜고 싶은 조명은?",
+        a: {
+          type: "E",
+          label: "통창 햇살과 밝은 조명이 방 전체를 환하게 채우는 무드",
+          img: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=800&q=80"
+        },
+        b: {
+          type: "I",
+          label: "구석에 은은하게 켜두는 따뜻한 무드등과 스탠드 조명",
+          img: "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=800&q=80"
+        }
+      },
+      {
+        title: "더 끌리는 침실 인테리어 스타일은?",
+        a: {
+          type: "S",
+          label: "군더더기 없이 깔끔하고 실용적인 모던·우드 침실",
+          img: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80"
+        },
+        b: {
+          type: "N",
+          label: "독특한 색감과 빈티지 무드가 살아있는 감성 침실",
+          img: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80"
+        }
+      },
+      {
+        title: "허전한 벽면이나 선반을 채울 소품은?",
+        a: {
+          type: "S",
+          label: "시간·날씨 확인과 수납이 한 번에 되는 실용 벽선반",
+          img: "https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?auto=format&fit=crop&w=800&q=80"
+        },
+        b: {
+          type: "N",
+          label: "감각적인 아트 포스터와 오브제가 어우러진 갤러리 벽면",
+          img: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80"
+        }
+      },
+      {
+        title: "내 방에 세팅하고 싶은 책상·작업 공간은?",
+        a: {
+          type: "T",
+          label: "모니터 암과 깔끔한 동선 중심의 기능적 데스크 셋업",
+          img: "https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=800&q=80"
+        },
+        b: {
+          type: "F",
+          label: "식물과 따뜻한 소품이 놓인 감성 원목 테이블",
+          img: "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=800&q=80"
+        }
+      },
+      {
+        title: "침대 위 스타일링 취향에 더 가까운 사진은?",
+        a: {
+          type: "T",
+          label: "호텔 침구처럼 단정하고 각 잡힌 무채색 베딩",
+          img: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=800&q=80"
+        },
+        b: {
+          type: "F",
+          label: "포근한 니트 담요와 여러 쿠션이 겹쳐진 아늑한 베딩",
+          img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80"
+        }
+      },
+      {
+        title: "수납장과 옷장을 정리하는 이상적인 모습은?",
+        a: {
+          type: "J",
+          label: "수납함과 칸막이로 각 맞춰 정돈된 시스템 수납",
+          img: "https://images.unsplash.com/photo-1558997519-83ea9252edf8?auto=format&fit=crop&w=800&q=80"
+        },
+        b: {
+          type: "P",
+          label: "자주 입는 옷과 소품이 손 닿기 편하게 걸린 오픈 행거",
+          img: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=800&q=80"
+        }
+      },
+      {
+        title: "소품과 식물을 배치할 때 더 끌리는 스타일은?",
+        a: {
+          type: "J",
+          label: "규칙적인 간격과 대칭으로 반듯하게 정돈된 배치",
+          img: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=800&q=80"
+        },
+        b: {
+          type: "P",
+          label: "크기와 높이가 다른 화분·소품이 자유롭게 어우러진 배치",
+          img: "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=800&q=80"
+        }
+      },
+      {
+        title: "내 방에 딱 하나 추가할 핵심 아이템을 고른다면?",
+        a: {
+          type: "ESTJ",
+          label: "공간 효율과 수납력을 극대화하는 모듈형 수납 선반",
+          img: "https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&w=800&q=80"
+        },
+        b: {
+          type: "INFP",
+          label: "나만의 영화관과 휴식을 완성하는 빔프로젝터·라운지 코너",
+          img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80"
+        }
+      }
+    ];
 
-    function updateStyleUI() {
-      if (selectedStyle === 'practical') {
-        btnPractical.className = 'style-card text-left p-5 rounded-2xl border-2 border-blue-600 bg-blue-50/60 shadow-sm transition-all';
-        btnPractical.querySelector('.badge').className = 'badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-600 text-white';
-        btnPractical.querySelector('.badge').textContent = '선택됨';
+    const results = {
+      ISTJ: {
+        title: "각 잡힌 미니멀 수납 마스터",
+        desc: "불필요한 장식보다 동선과 수납 효율이 완벽하게 맞아떨어질 때 가장 큰 편안함을 느끼는 타입입니다. 물건마다 제자리가 정해져 있어야 직성이 풀리며, 내구성과 실용성이 검증된 가구를 선호합니다.",
+        keywords: "#칼각정리 #화이트우드 #수납천재 #실용주의",
+        item: "모듈형 서랍장 · 라벨링 수납박스",
+        img: "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=900&q=80"
+      },
+      ISFJ: {
+        title: "포근한 온기의 정돈된 홈카페 주인",
+        desc: "단정하게 정돈된 공간 속에 따뜻한 패브릭과 은은한 조명을 더해 안정감을 만드는 타입입니다. 집은 바쁜 하루를 마치고 가장 안전하게 쉬어갈 수 있는 포근한 쉼터여야 합니다.",
+        keywords: "#따뜻한미니멀 #포근한베딩 #안정감 #우드톤",
+        item: "패브릭 단스탠드 · 극세사 블랭킷",
+        img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80"
+      },
+      INFJ: {
+        title: "고요한 영감이 흐르는 아지트 큐레이터",
+        desc: "겉으로 드러나는 화려함보다 나만의 철학과 스토리가 담긴 조용한 공간을 추구합니다. 은은한 간접 조명과 의미 있는 오브제 하나가 방 전체의 분위기를 결정짓습니다.",
+        keywords: "#감성아지트 #간접조명 #미니멀갤러리 #사색공간",
+        item: "아크릴 무드등 · 아트 포스터 액자",
+        img: "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=80"
+      },
+      INTJ: {
+        title: "완벽한 효율의 하이엔드 스마트 룸 설계자",
+        desc: "가구 배치부터 조명, 데스크 셋업까지 모든 요소에 명확한 목적과 효율이 있어야 만족하는 타입입니다. 군더더기 없는 모던한 톤과 스마트 기기 연동을 선호합니다.",
+        keywords: "#모던시크 #데스크테리어 #동선최적화 #무채색",
+        item: "모니터 암 · 스마트 조명 허브",
+        img: "https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=900&q=80"
+      },
+      ISTP: {
+        title: "군더더기 없는 쿨톤 기능주의자",
+        desc: "관리하기 번거로운 소품은 최소화하고, 꼭 필요한 핵심 가구만 툭 배치해 쿨하고 실용적인 공간을 만듭니다. 메탈, 블랙, 우드 소재가 어우러진 담백한 스타일이 잘 어울립니다.",
+        keywords: "#쿨톤인테리어 #관리편의 #핵심가구 #심플라이프",
+        item: "스틸 트롤리 · 1인 리클라이너 체어",
+        img: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=900&q=80"
+      },
+      ISFP: {
+        title: "오감을 채우는 감성 무드 메이커",
+        desc: "색감, 촉감, 향기처럼 디테일한 감각 요소에 탁월한 센스를 가진 타입입니다. 계획적으로 꾸미기보다 마음에 쏙 드는 소품을 하나씩 모아 나만의 예술적인 방을 완성합니다.",
+        keywords: "#감각적색감 #오브제수집 #포근한무드 #취향존중",
+        item: "아로마 디퓨저 · 빈티지 거울",
+        img: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=900&q=80"
+      },
+      INFP: {
+        title: "나만의 작은 우주, 몽상가 룸 아티스트",
+        desc: "현실의 피로를 잊고 좋아하는 영화, 음악, 책에 푹 빠질 수 있는 아늑한 벙커형 공간을 사랑합니다. 밤이 되면 조명을 끄고 무드등과 빔프로젝터를 켜는 순간 가장 행복해집니다.",
+        keywords: "#방구석영화관 #감성맥시멀 #무드등맛집 #나만의우주",
+        item: "미니 빔프로젝터 · 코지 빈백 소파",
+        img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=900&q=80"
+      },
+      INTP: {
+        title: "몰입과 탐구를 위한 랩실 스타일러",
+        desc: "남들의 시선보다 내가 작업하고 몰입하기 편한 구조가 최우선인 타입입니다. 책상 주변에 필요한 장비와 자료가 손 닿는 곳에 배치된 자유로운 연구실 같은 방을 선호합니다.",
+        keywords: "#몰입환경 #자유배치 #테크데스크 #실속파",
+        item: "와이드 데스크 · 멀티탭 정리함",
+        img: "https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?auto=format&fit=crop&w=900&q=80"
+      },
+      ESTP: {
+        title: "트렌디하고 에너제틱한 오픈 라운지",
+        desc: "답답하게 막힌 구조보다 시원하게 탁 트인 배치와 트렌디한 포인트 가구를 즐기는 타입입니다. 언제든 지인을 초대해 즐거운 시간을 보낼 수 있는 역동적인 공간을 만듭니다.",
+        keywords: "#오픈라운지 #포인트컬러 #트렌디 #쿨한분위기",
+        item: "디자인 라운지 체어 · 블루투스 스피커",
+        img: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80"
+      },
+      ESFP: {
+        title: "생기 넘치는 컬러풀 홈파티 호스트",
+        desc: "방에 들어서는 순간 기분이 밝아지는 화사한 채광과 다채로운 소품을 사랑하는 타입입니다. 거울 셀카가 잘 나오는 포토존과 감각적인 소품 배치가 자연스럽게 완성됩니다.",
+        keywords: "#채광맛집 #포토존인테리어 #생기발랄 #홈파티",
+        item: "전신 웨이브 거울 · 컬러 포인트 러그",
+        img: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=80"
+      },
+      ENFP: {
+        title: "영감이 샘솟는 보헤미안 플랜테리어",
+        desc: "정형화된 인테리어 규칙을 깨고 식물, 패브릭, 독특한 소품을 자유롭게 믹스매치하는 타입입니다. 기분에 따라 가구 위치를 바꾸며 매번 새로운 에너지를 얻습니다.",
+        keywords: "#플랜테리어 #믹스매치 #자유로운영혼 #창의적공간",
+        item: "행잉 플랜트 · 패턴 패브릭 포스터",
+        img: "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=900&q=80"
+      },
+      ENTP: {
+        title: "실험적이고 독창적인 콘셉트 스튜디오",
+        desc: "남들과 똑같은 평범한 방은 거부하는 아이디어 뱅크 타입입니다. 미드센추리 모던이나 인더스트리얼처럼 개성 강한 요소를 과감하게 조합해 스튜디오 같은 방을 꾸밉니다.",
+        keywords: "#미드센추리 #개성만점 #스튜디오무드 #실험정신",
+        item: "모듈 선반 · 유니크 디자인 조명",
+        img: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=900&q=80"
+      },
+      ESTJ: {
+        title: "빈틈없는 체계의 호텔식 스탠다드 룸",
+        desc: "깔끔하게 정돈된 대칭 구조와 명확한 공간 분리를 선호하는 실행력 만렙 타입입니다. 청소가 쉽고 수납 동선이 완벽하게 계산된 호텔 같은 쾌적한 방을 유지합니다.",
+        keywords: "#호텔인테리어 #완벽대칭 #청소용이 #체계적수납",
+        item: "시스템 옷장 · 매립형 수납 벤치",
+        img: "https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&w=900&q=80"
+      },
+      ESFJ: {
+        title: "누구나 반하는 따뜻한 환대의 거실",
+        desc: "가족이나 친구가 놀러 왔을 때 편안하게 머물 수 있도록 세심하게 배려된 공간을 꾸밉니다. 화사한 우드 톤과 아기자기한 소품, 기분 좋은 향기가 조화를 이룹니다.",
+        keywords: "#홈카페감성 #따뜻한환대 #화사한우드 #센스만점",
+        item: "원목 다이닝 테이블 · 테이블 램프",
+        img: "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=900&q=80"
+      },
+      ENFJ: {
+        title: "조화롭고 세련된 라이프스타일 갤러리",
+        desc: "공간 전체의 색감 밸런스와 따뜻한 분위기를 동시에 잡아내는 감각적인 리더 타입입니다. 함께 대화 나누기 좋은 소파 공간과 영감을 주는 책장이 멋지게 어우러집니다.",
+        keywords: "#컬러밸런스 #대화하기좋은방 #세련된온기 #조화로움",
+        item: "패브릭 소파 · 오픈 북선반",
+        img: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=900&q=80"
+      },
+      ENTJ: {
+        title: "압도적 완성도의 모던 펜트하우스 무드",
+        desc: "가구의 스케일감과 전체적인 통일성을 중시하는 카리스마 타입입니다. 불필요한 잔짐을 모두 숨기고 시원한 여백과 고급스러운 소재감으로 공간의 격을 높입니다.",
+        keywords: "#하이엔드모던 #시원한여백 #통일감 #프로페셔널",
+        item: "대형 서재 테이블 · 히든 도어 수납장",
+        img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80"
+      }
+    };
 
-        btnEmotional.className = 'style-card text-left p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-400 transition-all';
-        btnEmotional.querySelector('.badge').className = 'badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500';
-        btnEmotional.querySelector('.badge').textContent = '선택하기';
-      } else {
-        btnEmotional.className = 'style-card text-left p-5 rounded-2xl border-2 border-amber-500 bg-amber-50/60 shadow-sm transition-all';
-        btnEmotional.querySelector('.badge').className = 'badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500 text-white';
-        btnEmotional.querySelector('.badge').textContent = '선택됨';
+    function getDefaultStats() {
+      const counts = {};
+      ALL_MBTI.forEach(t => counts[t] = 0);
+      return {
+        visits: 0,
+        starts: 0,
+        completes: 0,
+        lastCompletedAt: null,
+        mbtiCounts: counts
+      };
+    }
 
-        btnPractical.className = 'style-card text-left p-5 rounded-2xl border-2 border-slate-200 bg-white hover:border-blue-400 transition-all';
-        btnPractical.querySelector('.badge').className = 'badge text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500';
-        btnPractical.querySelector('.badge').textContent = '선택하기';
+    function loadStats() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return getDefaultStats();
+        const parsed = JSON.parse(raw);
+        const base = getDefaultStats();
+        return {
+          visits: parsed.visits || 0,
+          starts: parsed.starts || 0,
+          completes: parsed.completes || 0,
+          lastCompletedAt: parsed.lastCompletedAt || null,
+          mbtiCounts: { ...base.mbtiCounts, ...(parsed.mbtiCounts || {}) }
+        };
+      } catch {
+        return getDefaultStats();
       }
     }
 
-    btnPractical.addEventListener('click', () => {
-      selectedStyle = 'practical';
-      updateStyleUI();
-      if (originalBase64) runDecorate();
-    });
+    function saveStats(stats) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+    }
 
-    btnEmotional.addEventListener('click', () => {
-      selectedStyle = 'emotional';
-      updateStyleUI();
-      if (originalBase64) runDecorate();
-    });
+    // 페이지 접속 기록
+    const initialStats = loadStats();
+    initialStats.visits += 1;
+    saveStats(initialStats);
 
-    // 이미지 리사이즈 (Vercel 요청 용량 제한 방지 및 속도 최적화)
-    function resizeImage(file, maxWidth = 1024) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let { width, height } = img;
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', 0.85));
-          };
-          img.onerror = reject;
-          img.src = e.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+    let currentIdx = 0;
+    let history = [];
+
+    function hideAllScreens() {
+      ['intro-screen', 'quiz-screen', 'result-screen', 'admin-screen'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById('step-badge').classList.add('hidden');
+    }
+
+    function goHome() {
+      hideAllScreens();
+      document.getElementById('intro-screen').classList.remove('hidden');
+    }
+
+    function startTest() {
+      const stats = loadStats();
+      stats.starts += 1;
+      saveStats(stats);
+
+      currentIdx = 0;
+      history = [];
+      hideAllScreens();
+      document.getElementById('quiz-screen').classList.remove('hidden');
+      document.getElementById('step-badge').classList.remove('hidden');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = questions[currentIdx];
+      document.getElementById('step-badge').textContent = `${currentIdx + 1} / ${questions.length}`;
+      document.getElementById('progress-bar').style.width = `${((currentIdx + 1) / questions.length) * 100}%`;
+      document.getElementById('q-number').textContent = `QUESTION 0${currentIdx + 1}`;
+      document.getElementById('q-title').textContent = q.title;
+
+      document.getElementById('img-a').src = q.a.img;
+      document.getElementById('label-a').textContent = q.a.label;
+
+      document.getElementById('img-b').src = q.b.img;
+      document.getElementById('label-b').textContent = q.b.label;
+
+      const prevBtn = document.getElementById('prev-btn');
+      if (currentIdx > 0) prevBtn.classList.remove('hidden');
+      else prevBtn.classList.add('hidden');
+    }
+
+    function selectOption(choice) {
+      const q = questions[currentIdx];
+      const selectedType = choice === 'A' ? q.a.type : q.b.type;
+      history[currentIdx] = selectedType;
+
+      if (currentIdx < questions.length - 1) {
+        currentIdx++;
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentIdx > 0) {
+        currentIdx--;
+        renderQuestion();
+      }
+    }
+
+    function showResult() {
+      const scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+      history.forEach(item => {
+        for (const char of item) {
+          if (scores[char] !== undefined) scores[char]++;
+        }
+      });
+
+      const mbti =
+        (scores.E >= scores.I ? 'E' : 'I') +
+        (scores.S >= scores.N ? 'S' : 'N') +
+        (scores.T >= scores.F ? 'T' : 'F') +
+        (scores.J >= scores.P ? 'J' : 'P');
+
+      const stats = loadStats();
+      stats.completes += 1;
+      stats.mbtiCounts[mbti] = (stats.mbtiCounts[mbti] || 0) + 1;
+      stats.lastCompletedAt = new Date().toLocaleString('ko-KR');
+      saveStats(stats);
+
+      const data = results[mbti];
+      hideAllScreens();
+      document.getElementById('result-screen').classList.remove('hidden');
+
+      document.getElementById('result-mbti').textContent = mbti;
+      document.getElementById('result-title').textContent = data.title;
+      document.getElementById('result-desc').textContent = data.desc;
+      document.getElementById('result-keywords').textContent = data.keywords;
+      document.getElementById('result-item').textContent = data.item;
+      document.getElementById('result-img').src = data.img;
+    }
+
+    function restartTest() {
+      startTest();
+    }
+
+    function copyResult() {
+      const mbti = document.getElementById('result-mbti').textContent;
+      const title = document.getElementById('result-title').textContent;
+      const text = `[인테리어로 알아보는 내 방 MBTI]\n나의 공간 유형은 '${mbti} - ${title}'!\n테스트 해보기 👉 ${window.location.href}`;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('결과와 링크가 클립보드에 복사되었습니다!');
       });
     }
 
-    fileInput.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        originalBase64 = await resizeImage(file);
-        await runDecorate();
-      } catch {
-        showError('이미지를 읽는 중 오류가 발생했습니다.');
-      }
-    });
+    // 관리자 모달 & 분석 화면
+    function openAdminModal() {
+      document.getElementById('admin-pw-input').value = '';
+      document.getElementById('admin-error').classList.add('hidden');
+      const modal = document.getElementById('admin-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => document.getElementById('admin-pw-input').focus(), 50);
+    }
 
-    async function runDecorate() {
-      errorBox.classList.add('hidden');
-      uploadSection.classList.add('hidden');
-      resultSection.classList.add('hidden');
-      loadingSection.classList.remove('hidden');
+    function closeAdminModal() {
+      const modal = document.getElementById('admin-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
 
-      loadingTitle.textContent =
-        selectedStyle === 'practical'
-          ? '🗂️ 수납공간과 동선을 최적화하는 중...'
-          : '🕯️ 따뜻한 조명과 감성 무드를 입히는 중...';
-
-      try {
-        const res = await fetch('/api/decorate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            imageBase64: originalBase64,
-            style: selectedStyle
-          })
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || 'AI 변환에 실패했습니다.');
-        }
-
-        imgBefore.src = originalBase64;
-        imgAfter.src = data.resultImage;
-        btnDownload.href = data.resultImage;
-
-        if (selectedStyle === 'practical') {
-          resultBadge.textContent = '🗂️ 실용형 인테리어 완료';
-          resultBadge.className = 'inline-block text-xs font-bold px-2.5 py-1 rounded-md bg-blue-600 text-white mr-2';
-          btnSwitchStyle.textContent = '🕯️ 감성형으로도 꾸며보기';
-        } else {
-          resultBadge.textContent = '🕯️ 감성형 인테리어 완료';
-          resultBadge.className = 'inline-block text-xs font-bold px-2.5 py-1 rounded-md bg-amber-500 text-white mr-2';
-          btnSwitchStyle.textContent = '🗂️ 실용형으로도 꾸며보기';
-        }
-
-        loadingSection.classList.add('hidden');
-        resultSection.classList.remove('hidden');
-        syncBeforeImageWidth();
-      } catch (err) {
-        loadingSection.classList.add('hidden');
-        uploadSection.classList.remove('hidden');
-        showError(err.message);
+    function verifyAdmin() {
+      const input = document.getElementById('admin-pw-input').value;
+      if (input === ADMIN_PASS) {
+        closeAdminModal();
+        renderAdminDashboard();
+        hideAllScreens();
+        document.getElementById('admin-screen').classList.remove('hidden');
+      } else {
+        document.getElementById('admin-error').classList.remove('hidden');
       }
     }
 
-    btnSwitchStyle.addEventListener('click', () => {
-      selectedStyle = selectedStyle === 'practical' ? 'emotional' : 'practical';
-      updateStyleUI();
-      runDecorate();
+    function renderAdminDashboard() {
+      const stats = loadStats();
+      const rate = stats.starts > 0 ? Math.round((stats.completes / stats.starts) * 100) : 0;
+
+      document.getElementById('stat-visits').textContent = stats.visits.toLocaleString();
+      document.getElementById('stat-starts').textContent = stats.starts.toLocaleString();
+      document.getElementById('stat-completes').textContent = stats.completes.toLocaleString();
+      document.getElementById('stat-rate').textContent = `${rate}%`;
+      document.getElementById('stat-last-time').textContent = stats.lastCompletedAt || '-';
+
+      const sortedTypes = [...ALL_MBTI].sort((a, b) => (stats.mbtiCounts[b] || 0) - (stats.mbtiCounts[a] || 0));
+      const topType = sortedTypes[0];
+      const topCount = stats.mbtiCounts[topType] || 0;
+
+      document.getElementById('stat-top-type').textContent =
+        topCount > 0 ? `${topType} — ${results[topType].title} (${topCount}명)` : "아직 완료 데이터가 없습니다";
+
+      const chartEl = document.getElementById('mbti-chart');
+      chartEl.innerHTML = '';
+
+      sortedTypes.forEach(type => {
+        const count = stats.mbtiCounts[type] || 0;
+        const pct = stats.completes > 0 ? Math.round((count / stats.completes) * 100) : 0;
+
+        const row = document.createElement('div');
+        row.className = 'bg-stone-50 rounded-2xl p-3.5 border border-stone-200';
+        row.innerHTML = `
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="font-extrabold text-stone-900">${type} <span class="font-normal text-stone-500">· ${results[type].title}</span></span>
+            <span class="font-bold text-stone-700">${count}명 (${pct}%)</span>
+          </div>
+          <div class="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
+            <div class="bg-stone-900 h-full transition-all duration-300" style="width: ${pct}%"></div>
+          </div>
+        `;
+        chartEl.appendChild(row);
+      });
+    }
+
+    function resetStats() {
+      if (!confirm('저장된 테스트 참여 및 MBTI 통계 데이터를 모두 초기화할까요?')) return;
+      saveStats(getDefaultStats());
+      renderAdminDashboard();
+    }
+
+    // 단축키 Ctrl+Shift+A 로도 관리자 비밀번호 창 열기
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        openAdminModal();
+      }
     });
-
-    btnReset.addEventListener('click', () => {
-      originalBase64 = '';
-      fileInput.value = '';
-      resultSection.classList.add('hidden');
-      uploadSection.classList.remove('hidden');
-      errorBox.classList.add('hidden');
-    });
-
-    function showError(msg) {
-      errorBox.textContent = msg;
-      errorBox.classList.remove('hidden');
-    }
-
-    // 슬라이더 드래그 제어
-    const compareBox = document.getElementById('compare-box');
-    const compareOverlay = document.getElementById('compare-overlay');
-    const compareHandle = document.getElementById('compare-handle');
-    let isDragging = false;
-
-    function syncBeforeImageWidth() {
-      imgBefore.style.width = `${compareBox.offsetWidth}px`;
-    }
-    window.addEventListener('resize', syncBeforeImageWidth);
-
-    function moveSlider(clientX) {
-      const rect = compareBox.getBoundingClientRect();
-      let percent = ((clientX - rect.left) / rect.width) * 100;
-      percent = Math.max(0, Math.min(100, percent));
-      compareOverlay.style.width = `${percent}%`;
-      compareHandle.style.left = `${percent}%`;
-    }
-
-    compareBox.addEventListener('mousedown', (e) => { isDragging = true; moveSlider(e.clientX); });
-    window.addEventListener('mousemove', (e) => { if (isDragging) moveSlider(e.clientX); });
-    window.addEventListener('mouseup', () => { isDragging = false; });
-
-    compareBox.addEventListener('touchstart', (e) => { isDragging = true; moveSlider(e.touches[0].clientX); });
-    window.addEventListener('touchmove', (e) => { if (isDragging) moveSlider(e.touches[0].clientX); });
-    window.addEventListener('touchend', () => { isDragging = false; });
   </script>
 </body>
 </html>
