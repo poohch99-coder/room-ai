@@ -636,7 +636,7 @@
         .order("created_at", { ascending: false });
 
       if (error) {
-        alert("DB 데이터를 불러오지 못했습니다. Supabase 설정과 RLS 정책을 확인하세요.");
+        alert(`DB 조회 실패 [${error.code || "코드 없음"}]\n${error.message}`);
         return;
       }
 
