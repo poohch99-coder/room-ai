@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>인테리어로 알아보는 내 방 MBTI</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
     body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -145,10 +146,13 @@
     <section id="admin-screen" class="hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200 space-y-6">
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-4">
         <div>
-          <span class="text-xs font-bold text-amber-700 uppercase tracking-wider">ADMIN ANALYTICS</span>
+          <span class="text-xs font-bold text-amber-700 uppercase tracking-wider">ADMIN ANALYTICS (LIVE DB)</span>
           <h2 class="text-xl sm:text-2xl font-extrabold text-stone-900">테스트 참여 및 결과 데이터 분석</h2>
         </div>
         <div class="flex items-center gap-2">
+          <button onclick="renderAdminDashboard()" class="text-xs font-semibold text-stone-700 hover:bg-stone-200 bg-stone-100 px-3 py-2 rounded-xl transition">
+            새로고침
+          </button>
           <button onclick="resetStats()" class="text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 px-3 py-2 rounded-xl transition">
             통계 초기화
           </button>
@@ -216,10 +220,16 @@
   </div>
 
   <script>
-    const ADMIN_PASS = "5757";
-    const STORAGE_KEY = "room_mbti_analytics_v1";
+    // 1. Supabase 설정값
+    const SUPABASE_URL = "https://wnbxmfdtsinjbgmxqacu.supabase.co";
+    const SUPABASE_ANON_KEY = "Sb_publishable_Z5IxAH6lDy4nsQXpWBooeg_xcux0zLR";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 방금 생성한 사진들의 실제 파일명 매핑 (웹 배포 시 같은 폴더에 해당 파일명으로 배치)
+    // 2. 관리자 설정
+    const ADMIN_PASS = "5757";
+    const ADMIN_DEVICE_FLAG = "room_mbti_is_admin_device";
+
+    // 3. 로컬 이미지 파일명 매핑 (GitHub에 올린 실제 파일명에 맞춰 확인)
     const IMG_2B = "./2b.png.png";
     const IMG_5A = "./5a.png.png";
     const IMG_5B = "./5b.png.png";
@@ -471,43 +481,21 @@
       }
     };
 
-    function getDefaultStats() {
-      const counts = {};
-      ALL_MBTI.forEach(t => counts[t] = 0);
-      return {
-        visits: 0,
-        starts: 0,
-        completes: 0,
-        lastCompletedAt: null,
-        mbtiCounts: counts
-      };
+    function isAdminDevice() {
+      return localStorage.getItem(ADMIN_DEVICE_FLAG) === "true";
     }
 
-    function loadStats() {
+    async function trackEvent(eventType, mbti = null) {
+      if (isAdminDevice()) return;
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return getDefaultStats();
-        const parsed = JSON.parse(raw);
-        const base = getDefaultStats();
-        return {
-          visits: parsed.visits || 0,
-          starts: parsed.starts || 0,
-          completes: parsed.completes || 0,
-          lastCompletedAt: parsed.lastCompletedAt || null,
-          mbtiCounts: { ...base.mbtiCounts, ...(parsed.mbtiCounts || {}) }
-        };
-      } catch {
-        return getDefaultStats();
+        await db.from("room_mbti_events").insert([{ event_type: eventType, mbti }]);
+      } catch (err) {
+        console.error("통계 기록 실패:", err);
       }
     }
 
-    function saveStats(stats) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
-    }
-
-    const initialStats = loadStats();
-    initialStats.visits += 1;
-    saveStats(initialStats);
+    // 접속 이벤트 기록
+    trackEvent("visit");
 
     let currentIdx = 0;
     let history = [];
@@ -525,10 +513,7 @@
     }
 
     function startTest() {
-      const stats = loadStats();
-      stats.starts += 1;
-      saveStats(stats);
-
+      trackEvent("start");
       currentIdx = 0;
       history = [];
       hideAllScreens();
@@ -589,11 +574,7 @@
         (scores.T >= scores.F ? 'T' : 'F') +
         (scores.J >= scores.P ? 'J' : 'P');
 
-      const stats = loadStats();
-      stats.completes += 1;
-      stats.mbtiCounts[mbti] = (stats.mbtiCounts[mbti] || 0) + 1;
-      stats.lastCompletedAt = new Date().toLocaleString('ko-KR');
-      saveStats(stats);
+      trackEvent("complete", mbti);
 
       const data = results[mbti];
       hideAllScreens();
@@ -638,28 +619,59 @@
     function verifyAdmin() {
       const input = document.getElementById('admin-pw-input').value;
       if (input === ADMIN_PASS) {
+        localStorage.setItem(ADMIN_DEVICE_FLAG, "true");
         closeAdminModal();
-        renderAdminDashboard();
         hideAllScreens();
         document.getElementById('admin-screen').classList.remove('hidden');
+        renderAdminDashboard();
       } else {
         document.getElementById('admin-error').classList.remove('hidden');
       }
     }
 
-    function renderAdminDashboard() {
-      const stats = loadStats();
-      const rate = stats.starts > 0 ? Math.round((stats.completes / stats.starts) * 100) : 0;
+    async function renderAdminDashboard() {
+      const { data: rows, error } = await db
+        .from("room_mbti_events")
+        .select("event_type, mbti, created_at")
+        .order("created_at", { ascending: false });
 
-      document.getElementById('stat-visits').textContent = stats.visits.toLocaleString();
-      document.getElementById('stat-starts').textContent = stats.starts.toLocaleString();
-      document.getElementById('stat-completes').textContent = stats.completes.toLocaleString();
+      if (error) {
+        alert("DB 데이터를 불러오지 못했습니다. Supabase 설정과 RLS 정책을 확인하세요.");
+        return;
+      }
+
+      let visits = 0;
+      let starts = 0;
+      let completes = 0;
+      let lastCompletedAt = null;
+      const mbtiCounts = {};
+      ALL_MBTI.forEach(t => mbtiCounts[t] = 0);
+
+      rows.forEach(row => {
+        if (row.event_type === "visit") visits++;
+        else if (row.event_type === "start") starts++;
+        else if (row.event_type === "complete") {
+          completes++;
+          if (row.mbti && mbtiCounts[row.mbti] !== undefined) {
+            mbtiCounts[row.mbti]++;
+          }
+          if (!lastCompletedAt) {
+            lastCompletedAt = new Date(row.created_at).toLocaleString("ko-KR");
+          }
+        }
+      });
+
+      const rate = starts > 0 ? Math.round((completes / starts) * 100) : 0;
+
+      document.getElementById('stat-visits').textContent = visits.toLocaleString();
+      document.getElementById('stat-starts').textContent = starts.toLocaleString();
+      document.getElementById('stat-completes').textContent = completes.toLocaleString();
       document.getElementById('stat-rate').textContent = `${rate}%`;
-      document.getElementById('stat-last-time').textContent = stats.lastCompletedAt || '-';
+      document.getElementById('stat-last-time').textContent = lastCompletedAt || '-';
 
-      const sortedTypes = [...ALL_MBTI].sort((a, b) => (stats.mbtiCounts[b] || 0) - (stats.mbtiCounts[a] || 0));
+      const sortedTypes = [...ALL_MBTI].sort((a, b) => (mbtiCounts[b] || 0) - (mbtiCounts[a] || 0));
       const topType = sortedTypes[0];
-      const topCount = stats.mbtiCounts[topType] || 0;
+      const topCount = mbtiCounts[topType] || 0;
 
       document.getElementById('stat-top-type').textContent =
         topCount > 0 ? `${topType} — ${results[topType].title} (${topCount}명)` : "아직 완료 데이터가 없습니다";
@@ -668,8 +680,8 @@
       chartEl.innerHTML = '';
 
       sortedTypes.forEach(type => {
-        const count = stats.mbtiCounts[type] || 0;
-        const pct = stats.completes > 0 ? Math.round((count / stats.completes) * 100) : 0;
+        const count = mbtiCounts[type] || 0;
+        const pct = completes > 0 ? Math.round((count / completes) * 100) : 0;
 
         const row = document.createElement('div');
         row.className = 'bg-stone-50 rounded-2xl p-3.5 border border-stone-200';
@@ -686,9 +698,13 @@
       });
     }
 
-    function resetStats() {
-      if (!confirm('저장된 테스트 참여 및 MBTI 통계 데이터를 모두 초기화할까요?')) return;
-      saveStats(getDefaultStats());
+    async function resetStats() {
+      if (!confirm('DB에 저장된 전체 테스트 참여 및 MBTI 통계 데이터를 모두 초기화할까요?')) return;
+      const { error } = await db.from("room_mbti_events").delete().gt("id", 0);
+      if (error) {
+        alert("초기화 중 오류가 발생했습니다.");
+        return;
+      }
       renderAdminDashboard();
     }
 
